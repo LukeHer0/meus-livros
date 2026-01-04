@@ -13,267 +13,12 @@
       src="https://www.gstatic.com/charts/loader.js"
     ></script>
 
+    <link rel="stylesheet" href="./styles.css" />
+
     <link
       rel="icon"
       href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📚</text></svg>"
     />
-
-    <style>
-      :root {
-        --bg-color: #14181c;
-        --card-bg: #232a31;
-        --text-color: #9ab;
-        --poster-border: #fff;
-        --star-color: #0083e0;
-        --highlight: #40bcf4;
-        --input-bg: #2c3440;
-      }
-
-      body {
-        background-color: var(--bg-color);
-        color: #fff;
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-          Helvetica, Arial, sans-serif;
-        margin: 0;
-        overflow-y: scroll;
-      }
-
-      .container {
-        max-width: 960px;
-        margin: 0 auto;
-        padding: 20px;
-        padding-bottom: 60px;
-      }
-
-      /* HEADER & STATS */
-      header {
-        text-align: center;
-        margin-bottom: 20px;
-      }
-      .stats {
-        display: flex;
-        justify-content: center;
-        gap: 30px;
-        margin-top: 20px;
-        margin-bottom: 30px;
-      }
-      .stat-box {
-        text-align: center;
-        cursor: default;
-        transition: transform 0.2s;
-      }
-      .stat-box span {
-        font-size: 1.5rem;
-        font-weight: bold;
-        display: block;
-      }
-      .stat-box small {
-        color: var(--text-color);
-        text-transform: uppercase;
-        font-size: 0.8rem;
-      }
-
-      .stat-box.interactive {
-        cursor: pointer;
-      }
-      .stat-box.interactive:hover {
-        transform: scale(1.1);
-      }
-      .stat-box.interactive span {
-        color: var(--highlight);
-      }
-
-      /* FILTRO */
-      .filter-bar {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 20px;
-        padding-bottom: 10px;
-        border-bottom: 1px solid #2c3440;
-      }
-      .active-filter-tag {
-        background: var(--highlight);
-        color: #000;
-        padding: 4px 12px;
-        border-radius: 12px;
-        font-size: 0.85rem;
-        font-weight: bold;
-        display: flex;
-        align-items: center;
-        gap: 5px;
-        cursor: pointer;
-      }
-      .active-filter-tag:hover {
-        opacity: 0.9;
-      }
-
-      .sort-select {
-        background-color: var(--input-bg);
-        color: #fff;
-        border: 1px solid #456;
-        padding: 5px 10px;
-        border-radius: 4px;
-        cursor: pointer;
-      }
-
-      /* GRID */
-      .grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-        gap: 25px 15px;
-      }
-      .card {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        cursor: pointer;
-        transition: transform 0.2s;
-      }
-      .card:hover {
-        transform: translateY(-5px);
-      }
-      .poster {
-        width: 100%;
-        aspect-ratio: 2 / 3;
-        border-radius: 4px;
-        border: 1px solid #2c3440;
-        background-color: #1e2328;
-        overflow: hidden;
-        position: relative;
-      }
-      .poster:hover {
-        border-color: var(--poster-border);
-      }
-      .poster img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        display: block;
-      }
-      .info {
-        margin-top: 8px;
-        text-align: center;
-      }
-      .stars {
-        color: var(--star-color);
-        font-size: 0.9rem;
-        letter-spacing: 1px;
-      }
-
-      /* MODALS */
-      .modal-overlay {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.9);
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        z-index: 1000;
-        padding: 20px;
-      }
-      .modal-content {
-        background: var(--card-bg);
-        width: 100%;
-        max-width: 800px;
-        max-height: 90vh;
-        border-radius: 8px;
-        display: flex;
-        gap: 30px;
-        padding: 30px;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-        overflow-y: auto;
-        position: relative;
-      }
-      .close-btn {
-        position: absolute;
-        top: 15px;
-        right: 20px;
-        font-size: 2rem;
-        cursor: pointer;
-        color: var(--text-color);
-        line-height: 1;
-        z-index: 10;
-      }
-      .close-btn:hover {
-        color: #fff;
-      }
-
-      .modal-poster {
-        width: 250px;
-        flex-shrink: 0;
-      }
-      .modal-poster img {
-        width: 100%;
-        border-radius: 4px;
-        border: 1px solid var(--text-color);
-      }
-      .modal-details {
-        flex-grow: 1;
-      }
-      .modal-details h2 {
-        margin-top: 0;
-        font-size: 2rem;
-        line-height: 1.1;
-      }
-      .review-box {
-        margin-top: 20px;
-        padding-top: 20px;
-        border-top: 1px solid #364049;
-        line-height: 1.6;
-      }
-
-      /* MAPA CONTAINER */
-      .map-container {
-        width: 100%;
-        height: 60vh;
-        border-radius: 4px;
-        overflow: hidden;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-      }
-
-      /* PAGINÔMETRO */
-      .paginometer {
-        margin-top: 50px;
-        padding-top: 20px;
-        border-top: 1px solid #2c3440;
-        display: flex;
-        justify-content: center;
-        gap: 40px;
-        color: var(--text-color);
-      }
-      .page-stat {
-        text-align: center;
-      }
-      .page-stat strong {
-        display: block;
-        font-size: 1.2rem;
-        color: #fff;
-      }
-
-      @media (max-width: 600px) {
-        .modal-content {
-          flex-direction: column;
-          padding: 20px;
-        }
-        .modal-poster {
-          width: 150px;
-          margin: 0 auto;
-        }
-        .modal-details {
-          text-align: center;
-        }
-        .paginometer {
-          gap: 20px;
-          font-size: 0.8rem;
-        }
-      }
-    </style>
   </head>
   <body>
     <div id="app" class="container">
@@ -362,23 +107,49 @@
       </header>
 
       <div class="filter-bar">
-        <div>
-          <div
-            v-if="filterCountry"
-            class="active-filter-tag"
-            @click="filterCountry = null"
-          >
-            <span>{{ filterCountry }}</span>
-            <span style="font-size: 1.2em">&times;</span>
+        <div class="filter-container">
+          <div class="filter-row">
+            <div class="filter-group">
+              <select v-model="filterGenre">
+                <option value="">Todos os Gêneros</option>
+                <option v-for="g in availableGenres" :value="g">{{ g }}</option>
+              </select>
+
+              <select v-model="filterCountry">
+                <option value="">Todos os Países</option>
+                <option v-for="c in availableCountries" :value="c">
+                  {{ c }}
+                </option>
+              </select>
+
+              <select v-model="filterDecade">
+                <option value="">Todas as Décadas</option>
+                <option v-for="d in availableDecades" :value="d">
+                  Anos {{ d }}
+                </option>
+              </select>
+            </div>
+
+            <div class="filter-group">
+              <span class="sort-label">Ordenar:</span>
+              <select v-model="sortBy">
+                <option value="read_desc">Lidos Recentemente</option>
+                <option value="read_asc">Lidos Antigamente</option>
+                <option value="rating">Melhores Notas</option>
+                <option value="year_desc">Publicação (Novo)</option>
+                <option value="year_asc">Publicação (Velho)</option>
+                <option value="alpha">A-Z</option>
+              </select>
+
+              <button
+                v-if="hasActiveFilters"
+                @click="resetFilters"
+                class="reset-btn"
+              >
+                Limpar &times;
+              </button>
+            </div>
           </div>
-        </div>
-        <div>
-          <span class="sort-label">Ordenar por:</span>
-          <select v-model="sortBy" class="sort-select">
-            <option value="read_desc">Lidos Recentemente</option>
-            <option value="read_asc">Lidos Antigamente</option>
-            <option value="rating">Melhores Notas</option>
-          </select>
         </div>
       </div>
 
@@ -428,6 +199,8 @@
           const sortBy = ref("read_desc");
           const showMapModal = ref(false);
           const filterCountry = ref(null);
+          const filterGenre = ref("");
+          const filterDecade = ref("");
           const loadingMap = ref(false);
 
           onMounted(() => {
@@ -441,7 +214,9 @@
                   ...book,
                   original_index: index,
                   pages: Number(book.pages) || 0,
+                  year: Number(book.year) || 0,
                   country: mapCountryName(book.country),
+                  decade: book.year ? Math.floor(book.year / 10) * 10 : null,
                 }));
               },
             });
@@ -468,12 +243,42 @@
             return map[ptName] || ptName;
           };
 
+          const availableGenres = computed(() => {
+            const genres = new Set(
+              books.value.map((b) => b.genre).filter(Boolean)
+            );
+            return [...genres].sort();
+          });
+
+          const availableCountries = computed(() => {
+            const countries = new Set(
+              books.value.map((b) => b.country).filter(Boolean)
+            );
+            return [...countries].sort();
+          });
+
+          const availableDecades = computed(() => {
+            const decades = new Set(
+              books.value.map((b) => b.decade).filter((d) => d !== null)
+            );
+            // Ordena do mais recente para o mais antigo
+            return [...decades].sort((a, b) => b - a);
+          });
+          const hasActiveFilters = computed(
+            () => filterGenre.value || filterCountry.value || filterDecade.value
+          );
+
+          const resetFilters = () => {
+            filterGenre.value = "";
+            filterCountry.value = "";
+            filterDecade.value = "";
+          };
           const totalPages = computed(() =>
-            books.value.reduce((acc, book) => acc + book.pages, 0)
+            sortedBooks.value.reduce((acc, book) => acc + book.pages, 0)
           );
           const averagePages = computed(() => {
-            if (books.value.length === 0) return 0;
-            return Math.round(totalPages.value / books.value.length);
+            if (sortedBooks.value.length === 0) return 0;
+            return Math.round(totalPages.value / sortedBooks.value.length);
           });
           const totalBooks = computed(() => books.value.length);
           const uniqueAuthors = computed(
@@ -500,9 +305,14 @@
           // Filtro e Ordenação
           const sortedBooks = computed(() => {
             let list = [...books.value];
-            if (filterCountry.value) {
+            if (filterGenre.value)
+              list = list.filter((b) => b.genre === filterGenre.value);
+            if (filterCountry.value)
               list = list.filter((b) => b.country === filterCountry.value);
-            }
+            if (filterDecade.value)
+              list = list.filter(
+                (b) => b.decade === Number(filterDecade.value)
+              );
             return list.sort((a, b) => {
               if (sortBy.value === "read_desc") {
                 const diff = Number(b.read_in) - Number(a.read_in);
@@ -515,6 +325,18 @@
               if (sortBy.value === "rating") {
                 const diff = (Number(b.rate) || 0) - (Number(a.rate) || 0);
                 return diff === 0 ? b.original_index - a.original_index : diff;
+              }
+              if (sortBy.value === "year_desc") {
+                const diff = (Number(b.year) || 0) - (Number(a.year) || 0);
+                return diff === 0 ? b.original_index - a.original_index : diff;
+              }
+              if (sortBy.value === "year_asc") {
+                const diff = (Number(a.year) || 0) - (Number(b.year) || 0);
+                return diff === 0 ? a.original_index - b.original_index : diff;
+              }
+              if (sortBy.value === "alpha") {
+                const diff = a.title.localeCompare(b.title);
+                return diff === 0 ? a.original_index - b.original_index : diff;
               }
               return 0;
             });
@@ -606,6 +428,13 @@
             getCover,
             generatePlaceholderCover,
             openMap,
+            filterGenre,
+            filterDecade,
+            availableGenres,
+            availableCountries,
+            availableDecades,
+            hasActiveFilters,
+            resetFilters,
           };
         },
       }).mount("#app");
