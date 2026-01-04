@@ -4,8 +4,15 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Meus Livros</title>
+
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <script src="https://unpkg.com/papaparse@5.4.1/papaparse.min.js"></script>
+
+    <script
+      type="text/javascript"
+      src="https://www.gstatic.com/charts/loader.js"
+    ></script>
+
     <link
       rel="icon"
       href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📚</text></svg>"
@@ -35,13 +42,14 @@
         max-width: 960px;
         margin: 0 auto;
         padding: 20px;
+        padding-bottom: 60px;
       }
 
+      /* HEADER & STATS */
       header {
         text-align: center;
         margin-bottom: 20px;
       }
-
       .stats {
         display: flex;
         justify-content: center;
@@ -51,6 +59,8 @@
       }
       .stat-box {
         text-align: center;
+        cursor: default;
+        transition: transform 0.2s;
       }
       .stat-box span {
         font-size: 1.5rem;
@@ -63,19 +73,39 @@
         font-size: 0.8rem;
       }
 
+      .stat-box.interactive {
+        cursor: pointer;
+      }
+      .stat-box.interactive:hover {
+        transform: scale(1.1);
+      }
+      .stat-box.interactive span {
+        color: var(--highlight);
+      }
+
+      /* FILTRO */
       .filter-bar {
         display: flex;
-        justify-content: flex-end;
+        justify-content: space-between;
         align-items: center;
         margin-bottom: 20px;
         padding-bottom: 10px;
         border-bottom: 1px solid #2c3440;
       }
-
-      .sort-label {
-        color: var(--text-color);
-        font-size: 0.9rem;
-        margin-right: 10px;
+      .active-filter-tag {
+        background: var(--highlight);
+        color: #000;
+        padding: 4px 12px;
+        border-radius: 12px;
+        font-size: 0.85rem;
+        font-weight: bold;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        cursor: pointer;
+      }
+      .active-filter-tag:hover {
+        opacity: 0.9;
       }
 
       .sort-select {
@@ -84,21 +114,15 @@
         border: 1px solid #456;
         padding: 5px 10px;
         border-radius: 4px;
-        font-family: inherit;
         cursor: pointer;
       }
 
-      .sort-select:focus {
-        outline: none;
-        border-color: var(--highlight);
-      }
-
+      /* GRID */
       .grid {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
         gap: 25px 15px;
       }
-
       .card {
         display: flex;
         flex-direction: column;
@@ -106,21 +130,18 @@
         cursor: pointer;
         transition: transform 0.2s;
       }
-
       .card:hover {
         transform: translateY(-5px);
       }
-
       .poster {
         width: 100%;
         aspect-ratio: 2 / 3;
         border-radius: 4px;
         border: 1px solid #2c3440;
-        background-color: #1e2328; /* Fundo enquanto carrega */
+        background-color: #1e2328;
         overflow: hidden;
         position: relative;
       }
-
       .poster:hover {
         border-color: var(--poster-border);
       }
@@ -130,7 +151,6 @@
         object-fit: cover;
         display: block;
       }
-
       .info {
         margin-top: 8px;
         text-align: center;
@@ -141,20 +161,20 @@
         letter-spacing: 1px;
       }
 
+      /* MODALS */
       .modal-overlay {
         position: fixed;
         top: 0;
         left: 0;
         width: 100%;
         height: 100%;
-        background: rgba(0, 0, 0, 0.85);
+        background: rgba(0, 0, 0, 0.9);
         display: flex;
         justify-content: center;
         align-items: center;
         z-index: 1000;
         padding: 20px;
       }
-
       .modal-content {
         background: var(--card-bg);
         width: 100%;
@@ -168,7 +188,6 @@
         overflow-y: auto;
         position: relative;
       }
-
       .close-btn {
         position: absolute;
         top: 15px;
@@ -177,6 +196,7 @@
         cursor: pointer;
         color: var(--text-color);
         line-height: 1;
+        z-index: 10;
       }
       .close-btn:hover {
         color: #fff;
@@ -191,7 +211,6 @@
         border-radius: 4px;
         border: 1px solid var(--text-color);
       }
-
       .modal-details {
         flex-grow: 1;
       }
@@ -200,24 +219,41 @@
         font-size: 2rem;
         line-height: 1.1;
       }
-      .modal-meta {
-        color: var(--text-color);
-        margin: 10px 0 20px 0;
-        font-size: 0.9rem;
-      }
-      .modal-meta span {
-        margin-right: 15px;
-      }
-
       .review-box {
         margin-top: 20px;
         padding-top: 20px;
         border-top: 1px solid #364049;
         line-height: 1.6;
       }
-      .review-placeholder {
+
+      /* MAPA CONTAINER */
+      .map-container {
+        width: 100%;
+        height: 60vh;
+        border-radius: 4px;
+        overflow: hidden;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+      /* PAGINÔMETRO */
+      .paginometer {
+        margin-top: 50px;
+        padding-top: 20px;
+        border-top: 1px solid #2c3440;
+        display: flex;
+        justify-content: center;
+        gap: 40px;
         color: var(--text-color);
-        font-style: italic;
+      }
+      .page-stat {
+        text-align: center;
+      }
+      .page-stat strong {
+        display: block;
+        font-size: 1.2rem;
+        color: #fff;
       }
 
       @media (max-width: 600px) {
@@ -232,11 +268,9 @@
         .modal-details {
           text-align: center;
         }
-        .review-box {
-          text-align: left;
-        }
-        .filter-bar {
-          justify-content: center;
+        .paginometer {
+          gap: 20px;
+          font-size: 0.8rem;
         }
       }
     </style>
@@ -244,45 +278,64 @@
   <body>
     <div id="app" class="container">
       <div
+        v-if="showMapModal"
+        class="modal-overlay"
+        @click.self="showMapModal = false"
+      >
+        <div class="modal-content" style="display: block; max-width: 900px">
+          <span class="close-btn" @click="showMapModal = false">&times;</span>
+          <h2 style="text-align: center; margin-bottom: 10px">
+            Mapa de Leitura
+          </h2>
+          <p
+            style="
+              text-align: center;
+              color: var(--text-color);
+              margin-bottom: 20px;
+            "
+          >
+            Clique em um país para filtrar os livros.
+          </p>
+
+          <div class="map-container" id="google_map_div">
+            <div v-if="loadingMap" style="color: #ccc">Carregando Mapa...</div>
+          </div>
+        </div>
+      </div>
+
+      <div
         v-if="selectedBook"
         class="modal-overlay"
         @click.self="selectedBook = null"
       >
         <div class="modal-content">
           <span class="close-btn" @click="selectedBook = null">&times;</span>
-
           <div class="modal-poster">
             <img
               :src="getCover(selectedBook)"
               @error="$event.target.src = generatePlaceholderCover(selectedBook)"
             />
           </div>
-
           <div class="modal-details">
             <h2>{{ selectedBook.title }}</h2>
             <div class="stars" style="font-size: 1.2rem; margin-bottom: 10px">
               {{ getStars(selectedBook.rate) }}
             </div>
-
             <div class="modal-meta">
               <span>{{ selectedBook.year }}</span>
               <span>{{ selectedBook.author }}</span>
+              <span>{{ selectedBook.country }}</span>
               <span>{{ selectedBook.pages }} pág.</span>
-              <span v-if="selectedBook.genre" style="color: var(--highlight)"
-                >{{ selectedBook.genre }}</span
-              >
             </div>
-
             <div class="review-box">
               <h3>Minha Resenha</h3>
-              <div v-if="selectedBook.review">
-                <p
-                  style="white-space: pre-wrap"
-                  v-html="selectedBook.review"
-                ></p>
-              </div>
+              <p
+                v-if="selectedBook.review"
+                style="white-space: pre-wrap"
+                v-html="selectedBook.review"
+              ></p>
               <div v-else class="review-placeholder">
-                Nenhuma resenha escrita para este livro ainda.
+                Nenhuma resenha escrita.
               </div>
             </div>
           </div>
@@ -298,22 +351,35 @@
           <div class="stat-box">
             <span>{{ uniqueAuthors }}</span><small>Autores</small>
           </div>
-          <div class="stat-box">
+          <div
+            class="stat-box interactive"
+            @click="openMap"
+            title="Ver Mapa Mundi"
+          >
             <span>{{ uniqueCountries }}</span><small>Países</small>
           </div>
         </div>
       </header>
 
       <div class="filter-bar">
-        <span class="sort-label">Ordenar por:</span>
-        <select v-model="sortBy" class="sort-select">
-          <option value="read_desc">Ordem de leitura (Novo → Velho)</option>
-          <option value="read_asc">Ordem de leitura (Velho → Novo)</option>
-          <option value="year_desc">Ano de Publicação (Novo → Velho)</option>
-          <option value="year_asc">Ano de Publicação (Velho → Novo)</option>
-          <option value="rating">Melhores Notas</option>
-          <option value="alpha">Ordem Alfabética</option>
-        </select>
+        <div>
+          <div
+            v-if="filterCountry"
+            class="active-filter-tag"
+            @click="filterCountry = null"
+          >
+            <span>{{ filterCountry }}</span>
+            <span style="font-size: 1.2em">&times;</span>
+          </div>
+        </div>
+        <div>
+          <span class="sort-label">Ordenar por:</span>
+          <select v-model="sortBy" class="sort-select">
+            <option value="read_desc">Lidos Recentemente</option>
+            <option value="read_asc">Lidos Antigamente</option>
+            <option value="rating">Melhores Notas</option>
+          </select>
+        </div>
       </div>
 
       <div class="grid">
@@ -335,19 +401,37 @@
           </div>
         </div>
       </div>
+
+      <footer class="paginometer">
+        <div class="page-stat">
+          <strong>{{ totalPages.toLocaleString('pt-BR') }}</strong> Páginas
+          Lidas
+        </div>
+        <div class="page-stat">
+          <strong>{{ averagePages }}</strong> Média p/ Livro
+        </div>
+      </footer>
     </div>
 
     <script>
-      const { createApp, ref, computed, onMounted } = Vue;
+      const { createApp, ref, computed, onMounted, nextTick, watch } = Vue;
+
+      // Carregar a lib do Google Charts
+      google.charts.load("current", {
+        packages: ["geochart"],
+      });
 
       createApp({
         setup() {
           const books = ref([]);
           const selectedBook = ref(null);
           const sortBy = ref("read_desc");
+          const showMapModal = ref(false);
+          const filterCountry = ref(null);
+          const loadingMap = ref(false);
 
           onMounted(() => {
-            // Voltamos ao Papa.parse simples e rápido
+            // 1. Carregar CSV
             Papa.parse("livros_lidos_atualizado.csv", {
               download: true,
               header: true,
@@ -356,58 +440,41 @@
                 books.value = results.data.map((book, index) => ({
                   ...book,
                   original_index: index,
+                  pages: Number(book.pages) || 0,
+                  country: mapCountryName(book.country),
                 }));
               },
             });
           });
 
-          // Função para gerar o Avatar (Placeholder)
-          const generatePlaceholderCover = (book) => {
-            if (!book || !book.title) return "";
-            const text = encodeURIComponent(book.title);
-
-            return `https://ui-avatars.com/api/?name=${text}&size=300&background=2c3440&color=9ab&bold=true&font-size=0.4`;
+          const mapCountryName = (ptName) => {
+            if (!ptName) return "";
+            const map = {
+              EUA: "United States",
+              "Reino Unido": "United Kingdom",
+              Brasil: "Brazil",
+              Colômbia: "Colombia",
+              Alemanha: "Germany",
+              Rússia: "Russia",
+              França: "France",
+              Áustria: "Austria",
+              Noruega: "Norway",
+              China: "China",
+              Israel: "Israel",
+              Portugal: "Portugal",
+              Itália: "Italy",
+              "Roma Antiga": "Italy",
+            };
+            return map[ptName] || ptName;
           };
 
-          const getCover = (book) => {
-            if (book.cover_url && book.cover_url.trim() !== "") {
-              return book.cover_url;
-            }
-
-            if (book.isbn) {
-              const cleanIsbn = book.isbn.replace(".0", "").trim();
-              if (cleanIsbn) {
-                return `https://covers.openlibrary.org/b/isbn/${cleanIsbn}-L.jpg`;
-              }
-            }
-            return generatePlaceholderCover(book);
-          };
-
-          const sortedBooks = computed(() => {
-            let list = [...books.value];
-            return list.sort((a, b) => {
-              if (sortBy.value === "alpha")
-                return a.title.localeCompare(b.title);
-              if (sortBy.value === "read_desc") {
-                const yearDiff = Number(b.read_in) - Number(a.read_in);
-
-                if (yearDiff === 0) {
-                  return b.original_index - a.original_index;
-                }
-                return yearDiff;
-              }
-              if (sortBy.value === "read_asc")
-                return Number(a.read_in) - Number(b.read_in);
-              if (sortBy.value === "year_desc")
-                return Number(b.year) - Number(a.year);
-              if (sortBy.value === "year_asc")
-                return Number(a.year) - Number(b.year);
-              if (sortBy.value === "rating")
-                return (Number(b.rate) || 0) - (Number(a.rate) || 0);
-              return 0;
-            });
+          const totalPages = computed(() =>
+            books.value.reduce((acc, book) => acc + book.pages, 0)
+          );
+          const averagePages = computed(() => {
+            if (books.value.length === 0) return 0;
+            return Math.round(totalPages.value / books.value.length);
           });
-
           const totalBooks = computed(() => books.value.length);
           const uniqueAuthors = computed(
             () => [...new Set(books.value.map((b) => b.author))].length
@@ -415,6 +482,106 @@
           const uniqueCountries = computed(
             () => [...new Set(books.value.map((b) => b.country))].length
           );
+
+          const chartData = computed(() => {
+            const counts = {};
+            books.value.forEach((book) => {
+              const c = book.country;
+              if (c) counts[c] = (counts[c] || 0) + 1;
+            });
+            // Converter para array [País, Quantidade] que o Google Charts pede
+            const data = [["Country", "Livros"]];
+            for (const [country, count] of Object.entries(counts)) {
+              data.push([country, count]);
+            }
+            return data;
+          });
+
+          // Filtro e Ordenação
+          const sortedBooks = computed(() => {
+            let list = [...books.value];
+            if (filterCountry.value) {
+              list = list.filter((b) => b.country === filterCountry.value);
+            }
+            return list.sort((a, b) => {
+              if (sortBy.value === "read_desc") {
+                const diff = Number(b.read_in) - Number(a.read_in);
+                return diff === 0 ? b.original_index - a.original_index : diff;
+              }
+              if (sortBy.value === "read_asc") {
+                const diff = Number(a.read_in) - Number(b.read_in);
+                return diff === 0 ? a.original_index - b.original_index : diff;
+              }
+              if (sortBy.value === "rating") {
+                const diff = (Number(b.rate) || 0) - (Number(a.rate) || 0);
+                return diff === 0 ? b.original_index - a.original_index : diff;
+              }
+              return 0;
+            });
+          });
+
+          // --- Lógica do Mapa Google Charts ---
+          const openMap = () => {
+            showMapModal.value = true;
+            loadingMap.value = true;
+
+            // Espera o Google carregar a lib e o Modal abrir no DOM
+            google.charts.setOnLoadCallback(() => {
+              nextTick(() => {
+                drawRegionsMap();
+                loadingMap.value = false;
+              });
+            });
+          };
+
+          const drawRegionsMap = () => {
+            const data = google.visualization.arrayToDataTable(chartData.value);
+
+            const options = {
+              backgroundColor: "#232a31", // Fundo do modal
+              datalessRegionColor: "#2c3440", // Países sem livros (Cinza escuro)
+              colorAxis: { colors: ["#40bcf4", "#0083e0"] }, // Gradiente de Azul
+              legend: "none", // Esconder legenda
+              tooltip: {
+                textStyle: { color: "#000" },
+                showColorCode: true,
+              },
+              // Estilo da borda
+              defaultColor: "#2c3440",
+            };
+
+            const chart = new google.visualization.GeoChart(
+              document.getElementById("google_map_div")
+            );
+
+            // Adiciona evento de clique
+            google.visualization.events.addListener(chart, "select", () => {
+              const selection = chart.getSelection();
+              if (selection.length > 0) {
+                const countryName = data.getValue(selection[0].row, 0);
+                filterCountry.value = countryName;
+                showMapModal.value = false; // Fecha modal ao selecionar
+              }
+            });
+
+            chart.draw(data, options);
+          };
+
+          // Helpers
+          const generatePlaceholderCover = (book) => {
+            const text = encodeURIComponent(book.title);
+            return `https://ui-avatars.com/api/?name=${text}&size=300&background=2c3440&color=9ab&bold=true&font-size=0.4`;
+          };
+
+          const getCover = (book) => {
+            if (book.cover_url?.trim()) return book.cover_url;
+            if (book.isbn) {
+              const clean = book.isbn.replace(".0", "").trim();
+              if (clean)
+                return `https://covers.openlibrary.org/b/isbn/${clean}-L.jpg`;
+            }
+            return generatePlaceholderCover(book);
+          };
 
           const getStars = (rate) => {
             if (!rate) return "";
@@ -427,12 +594,18 @@
             sortedBooks,
             sortBy,
             selectedBook,
+            showMapModal,
             totalBooks,
             uniqueAuthors,
             uniqueCountries,
+            totalPages,
+            averagePages,
+            filterCountry,
+            loadingMap,
             getStars,
             getCover,
             generatePlaceholderCover,
+            openMap,
           };
         },
       }).mount("#app");
