@@ -164,8 +164,15 @@ header {
   gap: 30px;
   padding: 30px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-  overflow-y: auto;
+  overflow: hidden;
   position: relative;
+}
+.modal-meta span {
+  margin-right: 12px;
+  color: var(--text-color);
+}
+.modal-meta span:nth-child(odd) {
+  opacity: 0.6;
 }
 .close-btn {
   position: absolute;
@@ -191,7 +198,10 @@ header {
   border: 1px solid var(--text-color);
 }
 .modal-details {
+  display: flex;
+  flex-direction: column;
   flex-grow: 1;
+  overflow: hidden;
 }
 .modal-details h2 {
   margin-top: 0;
@@ -199,8 +209,11 @@ header {
   line-height: 1.1;
 }
 .review-box {
+  overflow-y: auto;
+  max-height: 40vh;
   margin-top: 20px;
   padding-top: 20px;
+  padding-right: 10px;
   border-top: 1px solid #364049;
   line-height: 1.6;
 }
