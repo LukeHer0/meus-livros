@@ -71,6 +71,26 @@
               <span>{{ selectedBook.author }} </span>
               <span>{{ selectedBook.country }} </span>
               <span>{{ selectedBook.pages }} pág.</span>
+
+              <div v-if="selectedBook.genre" style="margin-top: 8px">
+                <span
+                  v-for="g in selectedBook.genre.split(',')"
+                  :key="g"
+                  style="
+                    background-color: var(--highlight);
+                    color: #14181c; /* Cor escura para contraste */
+                    padding: 2px 8px;
+                    border-radius: 4px;
+                    font-size: 0.75rem;
+                    font-weight: bold;
+                    margin-right: 6px;
+                    display: inline-block;
+                    margin-top: 4px;
+                  "
+                >
+                  {{ g.trim() }}
+                </span>
+              </div>
             </div>
             <div class="review-box">
               <h3>Minha Resenha</h3>
@@ -244,10 +264,13 @@
           };
 
           const availableGenres = computed(() => {
-            const genres = new Set(
-              books.value.map((b) => b.genre).filter(Boolean)
+            const allGenres = books.value.flatMap((b) => 
+                b.genre ? b.genre.split(',') : []
             );
-            return [...genres].sort();
+            
+            const cleanGenres = allGenres.map(g => g.trim()).filter(g => g !== "");
+
+            return [...new Set(cleanGenres)].sort();
           });
 
           const availableCountries = computed(() => {
@@ -305,8 +328,13 @@
           // Filtro e Ordenação
           const sortedBooks = computed(() => {
             let list = [...books.value];
-            if (filterGenre.value)
-              list = list.filter((b) => b.genre === filterGenre.value);
+            if (filterGenre.value) {
+              list = list.filter(b => {
+                  if (!b.genre) return false;
+                  const bookGenres = b.genre.split(',').map(g => g.trim());
+                  return bookGenres.includes(filterGenre.value);
+              });
+            }
             if (filterCountry.value)
               list = list.filter((b) => b.country === filterCountry.value);
             if (filterDecade.value)
