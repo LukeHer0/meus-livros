@@ -14,7 +14,7 @@
 </template>
 
 <script setup>
-import { watch, nextTick } from 'vue'
+import { watch, nextTick, onMounted, ref } from 'vue'
 import { useBooks } from '@/stores/books'
 
 const props = defineProps({
@@ -26,6 +26,13 @@ const emit = defineEmits(['close'])
 const { chartData, filterCountry } = useBooks()
 
 const loading = defineModel('loading', { default: false })
+const chartsLoaded = ref(false)
+
+onMounted(() => {
+  google.charts.setOnLoadCallback(() => {
+    chartsLoaded.value = true
+  })
+})
 
 watch(
   () => props.visible,
@@ -33,13 +40,20 @@ watch(
     if (!isVisible) return
     loading.value = true
 
-    // Espera o Google Charts carregar e o DOM do modal estar pronto
-    google.charts.setOnLoadCallback(() => {
+    if (chartsLoaded.value) {
       nextTick(() => {
         drawRegionsMap()
         loading.value = false
       })
-    })
+    } else {
+      google.charts.setOnLoadCallback(() => {
+        chartsLoaded.value = true
+        nextTick(() => {
+          drawRegionsMap()
+          loading.value = false
+        })
+      })
+    }
   }
 )
 

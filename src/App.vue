@@ -1,7 +1,8 @@
 <template>
   <div class="container">
-    <AppHeader @open-map="openMap" />
-    <router-view ref="pageRef" />
+    <AppHeader @open-map="showMapModal = true" />
+    <router-view />
+    <MapModal :visible="showMapModal" @close="showMapModal = false" />
   </div>
 </template>
 
@@ -9,21 +10,13 @@
 import { ref, onMounted } from 'vue'
 import { useBooks } from '@/stores/books'
 import AppHeader from '@/components/AppHeader.vue'
+import MapModal from '@/components/MapModal.vue'
 
 const { loadBooks } = useBooks()
-const pageRef = ref(null)
+const showMapModal = ref(false)
 
 onMounted(() => {
   loadBooks()
-
-  // Carregar Google Charts
   google.charts.load('current', { packages: ['geochart'] })
 })
-
-function openMap() {
-  // Se a página atual é a Biblioteca, abre o mapa dela
-  if (pageRef.value?.showMapModal !== undefined) {
-    pageRef.value.showMapModal = true
-  }
-}
 </script>

@@ -1876,5 +1876,27 @@
     ],
     "isbn": "9788594540362",
     "cover_url": null
+  },
+  {
+    "title": "Cabeça do Santo",
+    "author": "Socorro Acioli",
+    "country": "Brasil",
+    "original_language": "Português",
+    "year": 2014,
+    "publisher": "Companhia das Letras",
+    "pages": 160,
+    "read_in": 2026,
+    "rate": 3,
+    "review": "",
+    "source": "Ebook",
+    "series_name": null,
+    "series_number": null,
+    "genre": [
+      "Ficção",
+      "Romance",
+      "Fantasia"
+    ],
+    "isbn": " 9788535923698",
+    "cover_url": null
   }
 ]

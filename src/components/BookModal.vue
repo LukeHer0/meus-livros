@@ -20,7 +20,7 @@
           <span>{{ book.pages }} pág.</span>
 
           <div v-if="book.genre && book.genre.length" style="margin-top: 8px">
-            <span v-for="g in book.genre" :key="g" class="genre-tag">
+            <span v-for="g in book.genre" :key="g" class="genre-tag" style="color: black">
               {{ g }}
             </span>
           </div>
