@@ -27,6 +27,8 @@
             <option value="rating">Melhores Notas</option>
             <option value="year_desc">Publicação (Novo)</option>
             <option value="year_asc">Publicação (Velho)</option>
+            <option value="pages_desc">Mais Páginas</option>
+            <option value="pages_asc">Menos Páginas</option>
             <option value="alpha">A-Z</option>
           </select>
 

@@ -147,6 +147,14 @@ select:focus {
   gap: 25px 15px;
 }
 
+.load-error {
+  padding: 16px;
+  border: 1px solid #dc3545;
+  border-radius: 8px;
+  color: #b42318;
+  background: #fff1f0;
+}
+
 .card {
   display: flex;
   flex-direction: column;

@@ -25,11 +25,15 @@ const emit = defineEmits(['close'])
 
 const { chartData, filterCountry } = useBooks()
 
-const loading = defineModel('loading', { default: false })
+const loading = ref(false)
 const chartsLoaded = ref(false)
 
 onMounted(() => {
-  google.charts.setOnLoadCallback(() => {
+  const charts = window.google?.charts
+  if (!charts) return
+
+  charts.load('current', { packages: ['geochart'] })
+  charts.setOnLoadCallback(() => {
     chartsLoaded.value = true
   })
 })
@@ -40,13 +44,20 @@ watch(
     if (!isVisible) return
     loading.value = true
 
+    const charts = window.google?.charts
+    if (!charts) {
+      loading.value = false
+      return
+    }
+
     if (chartsLoaded.value) {
       nextTick(() => {
         drawRegionsMap()
         loading.value = false
       })
     } else {
-      google.charts.setOnLoadCallback(() => {
+      charts.load('current', { packages: ['geochart'] })
+      charts.setOnLoadCallback(() => {
         chartsLoaded.value = true
         nextTick(() => {
           drawRegionsMap()

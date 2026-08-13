@@ -8,6 +8,7 @@ import { mapCountryName } from '@/utils/countries'
 
 const books = ref([])
 const isLoaded = ref(false)
+const loadError = ref('')
 
 // Filtros
 const filterGenre = ref('')
@@ -20,17 +21,28 @@ const sortBy = ref('read_desc')
  */
 async function loadBooks() {
   if (isLoaded.value) return
-  const response = await fetch('/livros.json')
-  const data = await response.json()
-  books.value = data.map((book, index) => ({
-    ...book,
-    original_index: index,
-    pages: book.pages || 0,
-    year: book.year || 0,
-    country: mapCountryName(book.country),
-    decade: book.year ? Math.floor(book.year / 10) * 10 : null,
-  }))
-  isLoaded.value = true
+
+  loadError.value = ''
+  try {
+    const response = await fetch(`${import.meta.env.BASE_URL}livros.json`)
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}`)
+    }
+
+    const data = await response.json()
+    books.value = data.map((book, index) => ({
+      ...book,
+      original_index: index,
+      pages: book.pages || 0,
+      year: book.year || 0,
+      country: mapCountryName(book.country),
+      decade: book.year ? Math.floor(book.year / 10) * 10 : null,
+    }))
+    isLoaded.value = true
+  } catch (error) {
+    console.error('Não foi possível carregar os livros:', error)
+    loadError.value = 'Não foi possível carregar os livros. Atualize a página ou tente novamente mais tarde.'
+  }
 }
 
 // --- Computed: listas de filtros disponíveis ---
@@ -101,6 +113,14 @@ const sortedBooks = computed(() => {
     }
     if (sortBy.value === 'year_asc') {
       const diff = (Number(a.year) || 0) - (Number(b.year) || 0)
+      return diff === 0 ? a.original_index - b.original_index : diff
+    }
+    if (sortBy.value === 'pages_desc') {
+      const diff = (Number(b.pages) || 0) - (Number(a.pages) || 0)
+      return diff === 0 ? b.original_index - a.original_index : diff
+    }
+    if (sortBy.value === 'pages_asc') {
+      const diff = (Number(a.pages) || 0) - (Number(b.pages) || 0)
       return diff === 0 ? a.original_index - b.original_index : diff
     }
     if (sortBy.value === 'alpha') {
@@ -187,6 +207,7 @@ export function useBooks() {
     // Data
     books,
     isLoaded,
+    loadError,
     loadBooks,
 
     // Filtros

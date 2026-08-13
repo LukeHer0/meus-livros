@@ -17,6 +17,5 @@ const showMapModal = ref(false)
 
 onMounted(() => {
   loadBooks()
-  google.charts.load('current', { packages: ['geochart'] })
 })
 </script>

@@ -2,7 +2,8 @@
   <div>
     <FilterBar />
 
-    <BookGrid :books="sortedBooks" @select="selectedBook = $event" />
+    <p v-if="loadError" class="load-error" role="alert">{{ loadError }}</p>
+    <BookGrid v-else :books="sortedBooks" @select="selectedBook = $event" />
 
     <BookModal :book="selectedBook" @close="selectedBook = null" />
 
@@ -18,7 +19,7 @@ import BookGrid from '@/components/BookGrid.vue'
 import BookModal from '@/components/BookModal.vue'
 import PageFooter from '@/components/PageFooter.vue'
 
-const { sortedBooks } = useBooks()
+const { sortedBooks, loadError } = useBooks()
 
 const selectedBook = ref(null)
 </script>
