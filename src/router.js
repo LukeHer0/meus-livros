@@ -2,10 +2,12 @@ import { createRouter, createWebHashHistory } from 'vue-router'
 import BibliotecaPage from '@/pages/BibliotecaPage.vue'
 import AutoresPage from '@/pages/AutoresPage.vue'
 import EstatisticasPage from '@/pages/EstatisticasPage.vue'
+import SeriesPage from '@/pages/SeriesPage.vue'
 
 const routes = [
   { path: '/', name: 'biblioteca', component: BibliotecaPage },
   { path: '/autores', name: 'autores', component: AutoresPage },
+  { path: '/series', name: 'series', component: SeriesPage },
   { path: '/estatisticas', name: 'estatisticas', component: EstatisticasPage },
 ]
 

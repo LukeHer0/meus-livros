@@ -1,5 +1,8 @@
 <template>
   <div class="stats-page">
+    <p v-if="loadError" role="alert">{{ loadError }}</p>
+    <p v-else-if="!isLoaded" role="status">Carregando estatísticas…</p>
+    <p v-else-if="!books.length">Adicione livros à biblioteca para descobrir suas estatísticas.</p>
     <!-- Overview cards -->
     <div class="stats-overview">
       <div class="stat-card">
@@ -27,6 +30,18 @@
         <span class="label">Físico / Ebook</span>
       </div>
     </div>
+
+    <section class="stats-section">
+      <h2>Seu perfil de leitura</h2>
+      <p class="stats-description">Destaques de toda a biblioteca. Cada cálculo considera apenas os livros com o dado correspondente informado.</p>
+      <div class="reading-highlights">
+        <article v-for="item in readingStats.highlights" :key="item.label" class="stat-card">
+          <span class="label">{{ item.label }}</span>
+          <strong class="value">{{ item.value }}</strong>
+          <p>{{ item.detail }}</p>
+        </article>
+      </div>
+    </section>
 
     <!-- Livros por ano de leitura -->
     <div class="stats-section">
@@ -83,14 +98,35 @@
         </div>
       </div>
     </div>
+    <div class="reading-breakdowns">
+      <section v-for="section in readingStats.sections" :key="section.title" class="stats-section">
+        <h2>{{ section.title }}</h2>
+        <p class="stats-description">{{ section.description }}</p>
+        <div v-if="section.rows.length" class="bar-chart">
+          <div v-for="item in section.rows" :key="item.label" class="reading-bar">
+            <div class="reading-bar-heading">
+              <span>{{ item.label }}</span>
+              <strong>{{ item.display }}</strong>
+            </div>
+            <div class="bar-track" aria-hidden="true">
+              <div class="bar-fill" :style="{ width: item.pct + '%' }"></div>
+            </div>
+            <small v-if="item.detail">{{ item.detail }}</small>
+          </div>
+        </div>
+        <p v-else class="stats-description">Ainda não há dados suficientes para este recorte.</p>
+      </section>
+    </div>
   </div>
 </template>
 
 <script setup>
 import { computed } from 'vue'
 import { useBooks } from '@/stores/books'
+import { getReadingStatistics } from '@/utils/statistics'
 
-const { books, totalBooks, uniqueAuthors, uniqueCountries } = useBooks()
+const { books, totalBooks, uniqueAuthors, uniqueCountries, isLoaded, loadError } = useBooks()
+const readingStats = computed(() => getReadingStatistics(books.value))
 
 // --- Total de páginas (todos os livros, sem filtro) ---
 const allTotalPages = computed(() =>
@@ -179,3 +215,82 @@ const pagesByYear = computed(() => {
   return entries.map((e) => ({ ...e, pct: (e.pages / max) * 100 }))
 })
 </script>
+
+<style scoped>
+.stats-description {
+  margin: 0 0 20px;
+  line-height: 1.6;
+}
+
+.reading-highlights,
+.reading-breakdowns {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px;
+}
+
+.reading-highlights .stat-card {
+  text-align: left;
+}
+
+.reading-highlights .value {
+  margin-top: 12px;
+}
+
+.reading-highlights p {
+  margin: 8px 0 0;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.reading-breakdowns .stats-section {
+  min-width: 0;
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 24px;
+  margin-bottom: 0;
+}
+
+.reading-bar-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 16px;
+  margin-bottom: 6px;
+}
+
+.reading-bar-heading span {
+  overflow-wrap: anywhere;
+}
+
+.reading-bar-heading strong {
+  flex-shrink: 0;
+  color: var(--highlight);
+}
+
+.reading-bar .bar-track {
+  height: 12px;
+}
+
+.reading-bar .bar-fill {
+  min-width: 0;
+}
+
+.reading-bar small {
+  display: block;
+  margin-top: 4px;
+}
+
+.reading-breakdowns .bar-chart {
+  gap: 16px;
+}
+
+@media (max-width: 600px) {
+  .reading-highlights,
+  .reading-breakdowns {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+}
+</style>

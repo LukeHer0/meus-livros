@@ -1,6 +1,6 @@
 <template>
   <div v-if="book" class="modal-overlay" @click.self="$emit('close')">
-    <div class="modal-content">
+    <div class="modal-content book-modal">
       <span class="close-btn" @click="$emit('close')">&times;</span>
       <div class="modal-poster">
         <img
@@ -18,6 +18,7 @@
           <span>{{ book.author }}</span>
           <span>{{ book.country }}</span>
           <span>{{ book.pages }} pág.</span>
+          <span>Lido em: {{ book.read_in || 'Não informado' }}</span>
 
           <div v-if="book.genre && book.genre.length" style="margin-top: 8px">
             <span v-for="g in book.genre" :key="g" class="genre-tag" style="color: black">
@@ -47,3 +48,46 @@ defineProps({
 
 defineEmits(['close'])
 </script>
+
+<style scoped>
+.book-modal {
+  max-width: 1100px;
+  max-height: 92vh;
+  padding: 40px;
+  gap: 40px;
+  overflow-y: auto;
+}
+
+.book-modal .modal-poster {
+  width: 300px;
+}
+
+.book-modal .modal-details {
+  min-width: 0;
+  overflow: visible;
+  overflow-wrap: anywhere;
+}
+
+.book-modal .modal-details h2 {
+  padding-right: 20px;
+}
+
+.book-modal .review-box {
+  max-height: none;
+  overflow: visible;
+}
+
+@media (max-width: 800px) {
+  .book-modal {
+    flex-direction: column;
+    padding: 24px;
+    gap: 24px;
+  }
+
+  .book-modal .modal-poster {
+    width: 180px;
+    max-width: 100%;
+    margin: 0 auto;
+  }
+}
+</style>
