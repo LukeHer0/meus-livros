@@ -1,3 +1,5 @@
+import { formatAuthors, getAuthorNames } from './authors.js'
+
 const number = (value) => value !== null && value !== '' && Number.isFinite(Number(value)) ? Number(value) : null
 const format = (value) => value.toLocaleString('pt-BR', { maximumFractionDigits: 1 })
 const key = (value) => typeof value === 'string' ? value.trim().toLocaleLowerCase('pt-BR') : ''
@@ -5,7 +7,7 @@ const key = (value) => typeof value === 'string' ? value.trim().toLocaleLowerCas
 function groups(books, field) {
   const result = new Map()
   for (const book of books) {
-    const values = Array.isArray(book[field]) ? book[field] : [book[field]]
+    const values = field === 'author' ? getAuthorNames(book.author) : Array.isArray(book[field]) ? book[field] : [book[field]]
     for (const value of new Map(values.filter(key).map(value => [key(value), value.trim()])).values()) {
       const id = key(value)
       if (!result.has(id)) result.set(id, { label: value, books: [] })
@@ -53,11 +55,11 @@ export function getReadingStatistics(books) {
     highlights: [
       { label: 'Páginas por livro', value: pages.length ? format(pages.reduce((sum, value) => sum + value, 0) / pages.length) : '—', detail: `Média entre ${pages.length} livros com páginas informadas.` },
       { label: 'Mediana de páginas', value: median === null ? '—' : format(median), detail: 'O tamanho central ao ordenar os livros por número de páginas.' },
-      { label: 'Livro mais longo', value: longest ? `${format(Number(longest.pages))} pág.` : '—', detail: longest ? `${longest.title} · ${longest.author || 'Autor não informado'}` : 'Sem páginas informadas.' },
+      { label: 'Livro mais longo', value: longest ? `${format(Number(longest.pages))} pág.` : '—', detail: longest ? `${longest.title} · ${formatAuthors(longest.author) || 'Autor não informado'}` : 'Sem páginas informadas.' },
       { label: 'Ano com mais leituras', value: bestYear?.label || '—', detail: bestYear ? `${bestYear.books.length} livros registrados. Em caso de empate, o primeiro ano.` : 'Sem ano de leitura informado.' },
     ],
     sections: [
-      { title: 'Autores mais lidos', description: 'Até 10 autores com mais livros na sua biblioteca.', rows: counts(books, 'author') },
+      { title: 'Autores mais lidos', description: 'Até 10 autores com mais livros na sua biblioteca. Obras em coautoria contam uma vez para cada autor.', rows: counts(books, 'author') },
       { title: 'Idiomas originais', description: 'Idioma original das obras, independentemente do idioma da edição lida.', rows: counts(books, 'original_language', Infinity) },
       { title: 'Tamanho dos livros', description: `${pages.length} livros com páginas informadas.`, rows: bars([
         { label: 'Até 199 páginas', value: pages.filter(value => value < 200).length },

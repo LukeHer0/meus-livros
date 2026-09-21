@@ -1,8 +1,18 @@
 <template>
   <div class="stats-page">
+    <div class="period-navigation">
+      <button type="button" class="period-arrow" aria-label="Ver períodos mais recentes" @click="scrollPeriods(-1)">‹</button>
+      <div ref="periodStrip" class="stats-period" role="group" aria-label="Período das estatísticas">
+        <button type="button" :aria-pressed="period === 'all'" @click="selectPeriod('all', $event)">Estatísticas gerais</button>
+        <button v-for="year in availableYears" :key="year" type="button" :aria-pressed="period === year" @click="selectPeriod(year, $event)">{{ year }}{{ year === currentYear ? ' · Atual' : '' }}</button>
+      </div>
+      <button type="button" class="period-arrow" aria-label="Ver períodos mais antigos" @click="scrollPeriods(1)">›</button>
+    </div>
+    <p class="stats-description">{{ period === 'all' ? 'Todos os livros da biblioteca.' : `Livros lidos em ${period}, conforme o campo “Lido em”.` }}</p>
     <p v-if="loadError" role="alert">{{ loadError }}</p>
     <p v-else-if="!isLoaded" role="status">Carregando estatísticas…</p>
-    <p v-else-if="!books.length">Adicione livros à biblioteca para descobrir suas estatísticas.</p>
+    <p v-else-if="!books.length" role="status">{{ period !== 'all' ? `Nenhum livro lido em ${period} cadastrado ainda.` : 'Adicione livros à biblioteca para descobrir suas estatísticas.' }}</p>
+    <template v-if="isLoaded && !loadError">
     <!-- Overview cards -->
     <div class="stats-overview">
       <div class="stat-card">
@@ -32,10 +42,10 @@
     </div>
 
     <section class="stats-section">
-      <h2>Seu perfil de leitura</h2>
-      <p class="stats-description">Destaques de toda a biblioteca. Cada cálculo considera apenas os livros com o dado correspondente informado.</p>
+      <h2>{{ period === 'all' ? 'Seu perfil de leitura' : `Seu ano em livros · ${period}` }}</h2>
+      <p class="stats-description">Destaques {{ period === 'all' ? 'de toda a biblioteca' : 'das leituras do ano' }}. Cada cálculo considera apenas os livros com o dado correspondente informado.</p>
       <div class="reading-highlights">
-        <article v-for="item in readingStats.highlights" :key="item.label" class="stat-card">
+        <article v-for="item in highlights" :key="item.label" class="stat-card">
           <span class="label">{{ item.label }}</span>
           <strong class="value">{{ item.value }}</strong>
           <p>{{ item.detail }}</p>
@@ -44,7 +54,7 @@
     </section>
 
     <!-- Livros por ano de leitura -->
-    <div class="stats-section">
+    <div v-if="period === 'all'" class="stats-section">
       <h2>📅 Livros por Ano de Leitura</h2>
       <div class="bar-chart">
         <div v-for="item in booksByYear" :key="item.year" class="bar-row">
@@ -86,7 +96,7 @@
     </div>
 
     <!-- Páginas por ano -->
-    <div class="stats-section">
+    <div v-if="period === 'all'" class="stats-section">
       <h2>📖 Páginas por Ano de Leitura</h2>
       <div class="bar-chart">
         <div v-for="item in pagesByYear" :key="item.year" class="bar-row">
@@ -117,16 +127,52 @@
         <p v-else class="stats-description">Ainda não há dados suficientes para este recorte.</p>
       </section>
     </div>
+    </template>
   </div>
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { useBooks } from '@/stores/books'
 import { getReadingStatistics } from '@/utils/statistics'
+import { getAuthorNames, formatAuthors } from '@/utils/authors'
 
-const { books, totalBooks, uniqueAuthors, uniqueCountries, isLoaded, loadError } = useBooks()
+const { books: allBooks, isLoaded, loadError } = useBooks()
+const period = ref('all')
+const currentYear = new Date().getFullYear()
+const availableYears = computed(() => [...new Set(allBooks.value.map(book => Number(book.read_in))
+  .filter(year => Number.isInteger(year) && year > 0))].sort((a, b) => b - a))
+const periodStrip = ref(null)
+function scrollPeriods(direction) {
+  periodStrip.value?.scrollBy({ left: direction * periodStrip.value.clientWidth * 0.75 })
+}
+function selectPeriod(value, event) {
+  period.value = value
+  event.currentTarget.scrollIntoView({ block: 'nearest', inline: 'nearest' })
+}
+const books = computed(() => period.value === 'all' ? allBooks.value : allBooks.value.filter(book => Number(book.read_in) === period.value))
+const totalBooks = computed(() => books.value.length)
+const uniqueAuthors = computed(() => getAuthorNames(books.value.flatMap(book => getAuthorNames(book.author))).length)
+const uniqueCountries = computed(() => new Set(books.value.map(book => book.country).filter(Boolean)).size)
 const readingStats = computed(() => getReadingStatistics(books.value))
+const highlights = computed(() => {
+  if (period.value === 'all') return readingStats.value.highlights
+  const previousAuthors = new Set(allBooks.value
+    .filter(book => Number(book.read_in) > 0 && Number(book.read_in) < period.value)
+    .flatMap(book => getAuthorNames(book.author)).map(name => name.toLocaleLowerCase('pt-BR')))
+  const newAuthors = getAuthorNames(books.value.flatMap(book => getAuthorNames(book.author)))
+    .filter(name => !previousAuthors.has(name.toLocaleLowerCase('pt-BR')))
+  const rated = books.value.filter(book => Number(book.rate) > 0 && Number(book.rate) <= 5)
+  const bestRate = Math.max(0, ...rated.map(book => Number(book.rate)))
+  const bestBooks = rated.filter(book => Number(book.rate) === bestRate)
+  const previousBooks = allBooks.value.filter(book => Number(book.read_in) === period.value - 1)
+  return [
+    ...readingStats.value.highlights.slice(0, 3),
+    { label: 'Autores novos no ano', value: newAuthors.length, detail: 'Autores sem leituras registradas em anos anteriores. Livros sem ano informado não entram nessa comparação.' },
+    { label: 'Melhor nota do ano', value: bestRate ? `${bestRate.toLocaleString('pt-BR')} ★` : '—', detail: bestBooks.length ? bestBooks.map(book => `${book.title} · ${formatAuthors(book.author)}`).join('; ') : 'Nenhum livro avaliado neste ano.' },
+    { label: `Leituras em ${period.value - 1}`, value: previousBooks.length, detail: `${books.value.length} livros registrados em ${period.value}${period.value === currentYear ? ' até agora' : ''}. ${previousBooks.length ? `A referência de ${period.value - 1} considera o ano inteiro.` : 'Não há leituras cadastradas no ano anterior.'}` },
+  ]
+})
 
 // --- Total de páginas (todos os livros, sem filtro) ---
 const allTotalPages = computed(() =>
@@ -217,6 +263,36 @@ const pagesByYear = computed(() => {
 </script>
 
 <style scoped>
+.period-navigation { display: flex; align-items: center; gap: 8px; margin-bottom: 16px; }
+.period-arrow { flex-shrink: 0; font-size: 1.5rem; padding: 4px 12px; }
+.stats-period {
+  display: flex;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;
+  overflow-x: auto;
+  padding: 4px 2px 10px;
+  scroll-snap-type: x proximity;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-subtle) transparent;
+}
+.stats-period button { flex-shrink: 0; white-space: nowrap; scroll-snap-align: start; }
+.period-arrow,
+.stats-period button {
+  padding: 10px 16px;
+  border: 1px solid var(--border-subtle);
+  border-radius: 6px;
+  background: var(--card-bg);
+  color: var(--text-color);
+  font: inherit;
+  cursor: pointer;
+}
+.stats-period button[aria-pressed="true"] {
+  color: #fff;
+  border-color: var(--highlight);
+  background: var(--input-bg);
+}
+.period-navigation button:focus-visible { outline: 2px solid var(--highlight); outline-offset: 3px; }
 .stats-description {
   margin: 0 0 20px;
   line-height: 1.6;

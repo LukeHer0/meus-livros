@@ -21,6 +21,7 @@
     </div>
     <nav class="nav-links">
       <router-link to="/">📚 Biblioteca</router-link>
+      <router-link to="/quadrinhos">💬 Quadrinhos</router-link>
       <router-link to="/autores">✍️ Autores</router-link>
       <router-link to="/series">📚 Séries</router-link>
       <router-link to="/estatisticas">📊 Estatísticas</router-link>
@@ -42,6 +43,7 @@ defineEmits(['open-map'])
 </script>
 
 <style scoped>
+.nav-links { flex-wrap: wrap; }
 @media (max-width: 400px) {
   .stats { gap: 16px; }
 }

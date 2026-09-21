@@ -15,7 +15,9 @@
         </div>
         <div class="modal-meta">
           <span>{{ book.year }}</span>
-          <span>{{ book.author }}</span>
+          <span>{{ formatAuthors(book.author) }}</span>
+          <span v-if="book.artist">Arte: {{ book.artist }}</span>
+          <span v-if="book.format">{{ book.format }}</span>
           <span>{{ book.country }}</span>
           <span>{{ book.pages }} pág.</span>
           <span>Lido em: {{ book.read_in || 'Não informado' }}</span>
@@ -41,6 +43,7 @@
 <script setup>
 import { getCover, generatePlaceholderCover } from '@/utils/covers'
 import { getStars } from '@/utils/helpers'
+import { formatAuthors } from '@/utils/authors'
 
 defineProps({
   book: { type: Object, default: null },

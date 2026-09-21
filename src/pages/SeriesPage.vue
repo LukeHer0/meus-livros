@@ -64,6 +64,7 @@
 import { computed, ref } from 'vue'
 import { useBooks } from '@/stores/books'
 import { getStars } from '@/utils/helpers'
+import { getAuthorNames } from '@/utils/authors'
 import { getCover, generatePlaceholderCover } from '@/utils/covers'
 import BookModal from '@/components/BookModal.vue'
 
@@ -95,7 +96,7 @@ const series = computed(() => {
   }
   return [...collections.values()].map(collection => ({
     ...collection,
-    authors: [...new Set(collection.books.map(book => book.author).filter(Boolean))],
+    authors: getAuthorNames(collection.books.flatMap(book => getAuthorNames(book.author))),
     books: [...collection.books].sort((a, b) => {
       const volumeA = String(a.series_number ?? '').trim()
       const volumeB = String(b.series_number ?? '').trim()

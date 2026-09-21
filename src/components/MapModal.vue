@@ -16,6 +16,9 @@
 <script setup>
 import { watch, nextTick, onMounted, ref } from 'vue'
 import { useBooks } from '@/stores/books'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
 
 const props = defineProps({
   visible: { type: Boolean, default: false },
@@ -92,6 +95,7 @@ function drawRegionsMap() {
     if (selection.length > 0) {
       const countryName = data.getValue(selection[0].row, 0)
       filterCountry.value = countryName
+      router.push('/')
       emit('close')
     }
   })

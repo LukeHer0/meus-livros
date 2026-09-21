@@ -3,11 +3,13 @@ import BibliotecaPage from '@/pages/BibliotecaPage.vue'
 import AutoresPage from '@/pages/AutoresPage.vue'
 import EstatisticasPage from '@/pages/EstatisticasPage.vue'
 import SeriesPage from '@/pages/SeriesPage.vue'
+import QuadrinhosPage from '@/pages/QuadrinhosPage.vue'
 
 const routes = [
   { path: '/', name: 'biblioteca', component: BibliotecaPage },
   { path: '/autores', name: 'autores', component: AutoresPage },
   { path: '/series', name: 'series', component: SeriesPage },
+  { path: '/quadrinhos', name: 'quadrinhos', component: QuadrinhosPage },
   { path: '/estatisticas', name: 'estatisticas', component: EstatisticasPage },
 ]
 

@@ -10,6 +10,7 @@
 
           <select v-model="filterCountry">
             <option value="">Todos os Países</option>
+            <option v-if="filterCountry && !availableCountries.includes(filterCountry)" :value="filterCountry">{{ mapCountryName(filterCountry) }} (mapa)</option>
             <option v-for="c in availableCountries" :key="c" :value="c">{{ c }}</option>
           </select>
 
@@ -43,6 +44,7 @@
 
 <script setup>
 import { useBooks } from '@/stores/books'
+import { mapCountryName } from '@/utils/countries'
 
 const {
   filterGenre,

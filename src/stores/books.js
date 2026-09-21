@@ -1,5 +1,6 @@
 import { ref, computed } from 'vue'
-import { mapCountryName } from '@/utils/countries'
+import { mapCountryName, getMapCountry } from '@/utils/countries'
+import { getAuthorNames } from '@/utils/authors'
 
 /**
  * Store reativa centralizada para os livros.
@@ -88,7 +89,7 @@ const sortedBooks = computed(() => {
     })
   }
   if (filterCountry.value) {
-    list = list.filter((b) => b.country === filterCountry.value)
+    list = list.filter((b) => b.country === filterCountry.value || getMapCountry(b.country) === filterCountry.value)
   }
   if (filterDecade.value) {
     list = list.filter((b) => b.decade === Number(filterDecade.value))
@@ -136,11 +137,11 @@ const sortedBooks = computed(() => {
 const totalBooks = computed(() => books.value.length)
 
 const uniqueAuthors = computed(
-  () => [...new Set(books.value.map((b) => b.author))].length
+  () => authors.value.length
 )
 
 const uniqueCountries = computed(
-  () => [...new Set(books.value.map((b) => b.country))].length
+  () => new Set(books.value.map((b) => b.country).filter(Boolean)).size
 )
 
 const totalPages = computed(() =>
@@ -155,12 +156,13 @@ const averagePages = computed(() => {
 const chartData = computed(() => {
   const counts = {}
   books.value.forEach((book) => {
-    const c = book.country
+    const c = getMapCountry(book.country)
     if (c) counts[c] = (counts[c] || 0) + 1
   })
   const data = [['Country', 'Livros']]
   for (const [country, count] of Object.entries(counts)) {
-    data.push([country, count])
+    const labels = [...new Set(books.value.filter(book => getMapCountry(book.country) === country).map(book => book.country))]
+    data.push([{ v: country, f: labels.join(' / ') }, count])
   }
   return data
 })
@@ -168,25 +170,26 @@ const chartData = computed(() => {
 // --- Computed: dados de autores ---
 
 const authors = computed(() => {
-  const map = {}
+  const map = Object.create(null)
   books.value.forEach((book) => {
-    const name = book.author
-    if (!name) return
-    if (!map[name]) {
-      map[name] = {
-        name,
-        country: book.country,
-        books: [],
-        totalPages: 0,
-        totalRate: 0,
-        ratedCount: 0,
+    for (const name of getAuthorNames(book.author)) {
+      const key = name.toLocaleLowerCase('pt-BR')
+      if (!map[key]) {
+        map[key] = {
+          name,
+          country: book.country,
+          books: [],
+          totalPages: 0,
+          totalRate: 0,
+          ratedCount: 0,
+        }
       }
-    }
-    map[name].books.push(book)
-    map[name].totalPages += book.pages
-    if (book.rate) {
-      map[name].totalRate += book.rate
-      map[name].ratedCount++
+      map[key].books.push(book)
+      map[key].totalPages += book.pages
+      if (book.rate) {
+        map[key].totalRate += book.rate
+        map[key].ratedCount++
+      }
     }
   })
 
