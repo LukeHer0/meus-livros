@@ -18,6 +18,10 @@
             <option value="">Todas as Décadas</option>
             <option v-for="d in availableDecades" :key="d" :value="d">Anos {{ d }}</option>
           </select>
+          <select v-model="filterPublisher" aria-label="Filtrar por editora">
+            <option value="">Todas as Editoras</option>
+            <option v-for="publisher in availablePublishers" :key="publisher" :value="publisher">{{ publisher }}</option>
+          </select>
         </div>
 
         <div class="filter-group">
@@ -50,6 +54,8 @@ const {
   filterGenre,
   filterCountry,
   filterDecade,
+  filterPublisher,
+  availablePublishers,
   sortBy,
   availableGenres,
   availableCountries,

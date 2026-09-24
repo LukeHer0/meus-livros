@@ -29,7 +29,7 @@
         <p v-if="!filteredComics.length">Nenhum quadrinho encontrado.</p>
       </template>
     </template>
-    <BookModal :book="selectedComic" @close="selectedComic = null" />
+    <BookModal :book="selectedComic" collection="comics" @close="selectedComic = null" />
   </div>
 </template>
 

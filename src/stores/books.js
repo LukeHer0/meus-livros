@@ -15,6 +15,9 @@ const loadError = ref('')
 const filterGenre = ref('')
 const filterCountry = ref('')
 const filterDecade = ref('')
+const filterPublisher = ref('')
+const normalizePublisher = value => String(value || '').trim().toLocaleLowerCase('pt-BR')
+const availablePublishers = computed(() => [...new Map(books.value.filter(book => book.publisher?.trim()).map(book => [normalizePublisher(book.publisher), book.publisher.trim()])).values()].sort((a, b) => a.localeCompare(b, 'pt-BR')))
 const sortBy = ref('read_desc')
 
 /**
@@ -68,19 +71,23 @@ const availableDecades = computed(() => {
 // --- Computed: filtros ativos ---
 
 const hasActiveFilters = computed(
-  () => filterGenre.value || filterCountry.value || filterDecade.value
+  () => filterGenre.value || filterCountry.value || filterDecade.value || filterPublisher.value
 )
 
 function resetFilters() {
   filterGenre.value = ''
   filterCountry.value = ''
   filterDecade.value = ''
+  filterPublisher.value = ''
 }
 
 // --- Computed: livros filtrados e ordenados ---
 
 const sortedBooks = computed(() => {
   let list = [...books.value]
+  if (filterPublisher.value) {
+    list = list.filter(book => normalizePublisher(book.publisher) === normalizePublisher(filterPublisher.value))
+  }
 
   if (filterGenre.value) {
     list = list.filter((b) => {
@@ -217,6 +224,8 @@ export function useBooks() {
     filterGenre,
     filterCountry,
     filterDecade,
+    filterPublisher,
+    availablePublishers,
     sortBy,
     availableGenres,
     availableCountries,
